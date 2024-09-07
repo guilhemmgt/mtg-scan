@@ -16,3 +16,4 @@ class TestImage:
     
     def __init__(self, raw_image):
         self.raw_image = raw_image
+        

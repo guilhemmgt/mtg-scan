@@ -25,6 +25,9 @@ class Segmenter:
 
 
     def segment (self, test_image:TestImage) -> TestImage:
+        if (self.verbose):
+            print("\tSegmenting...")
+        
         # Extracts contours from the preprocessed image
         contours = self._contour_image (test_image)
         contours = sorted (contours, key=cv.contourArea, reverse=True)
@@ -36,8 +39,15 @@ class Segmenter:
         # Corrects rotation
         card_rect = cv.minAreaRect (card_contour) # ((center x, center y), (width, height), angle)
         M = cv.getRotationMatrix2D (card_rect[0], card_rect[2], 1)
-        card_vertices = np.int0 (np.round (cv.transform (np.array ([cv.boxPoints (card_rect)]), M)[0]))
+        card_vertices = np.int32 (np.round (cv.transform (np.array ([cv.boxPoints (card_rect)]), M)[0]))
+        print (card_vertices)
+        cv.drawContours(test_image.preprocessed_image, card_contour, -1, (0,255,0), 3)
+        plt.imshow (test_image.preprocessed_image)
+        plt.show(block=True)
         card_image = cv.warpAffine (test_image.preprocessed_image, M, (test_image.preprocessed_image.shape[1], test_image.preprocessed_image.shape[0]))
+        
+        # cv2.drawContours(im, contours, -1, (0,255,0), 3)
+        
         
         # Crops image
         card_image = card_image[card_vertices[1][1]:card_vertices[0][1], card_vertices[1][0]:card_vertices[2][0]]

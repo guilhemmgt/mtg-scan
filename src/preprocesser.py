@@ -17,7 +17,7 @@ class PreProcesser:
         Pre process test and reference images for matching
         '''
         if (self.verbose):
-            print("\tPre processing (maxsize=" + str(max_size) + ") ...")
+            print("\tPre processing...")
 
         start_time = time.time() # Performance stats
 

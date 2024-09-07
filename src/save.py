@@ -32,7 +32,6 @@ class Save:
         
         print ("Updating phashes...")
         
-        
         local_data = self._get_local_data ()
 
         if (self.verbose):
@@ -57,6 +56,7 @@ class Save:
             else:
                 print (card)
                 raise Exception
+            
             # TODO: add clahe to card_images ?
             
             # Computes each image's phash.
@@ -108,15 +108,13 @@ class Save:
             if 'card_faces' in card and len(card['card_faces'])==2 and card['card_faces'][0]['oracle_text']=="" and card['card_faces'][1]['oracle_text']=="":
                 continue
             # HACK temp removes non-KLD cards
-            if card['set'] != 'kld':
-                continue
+            # if card['set'] != 'kld':
+                # continue
             # Adds card
             filtered_online_data.append (card)
         if (self.verbose):
             print (f"\tKeeping {len(filtered_online_data)} cards.")
             
-        
-
         # Writes 'bulk infos' and 'data' JSONs to disk
         self._write_bulk (online_bulk)
         self._write_data (filtered_online_data)
