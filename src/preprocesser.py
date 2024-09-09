@@ -12,7 +12,7 @@ class PreProcesser:
         self.verbose = verbose
 
 
-    def pre_process_image(self, image:TestImage, clahe, max_size:int=1000):
+    def pre_process_image(self, image:TestImage, clahe, max_size:int=1000000000000000000):
         '''
         Pre process test and reference images for matching
         '''
