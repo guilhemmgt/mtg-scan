@@ -11,6 +11,7 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from collections import defaultdict
 
 from referenceimage import ReferenceImage
 from readerwriter import ReaderWriter
@@ -97,27 +98,79 @@ class Save:
             
         # Filters out uninteresting cards
         filtered_online_data = []
+        verbose_filter_stats = defaultdict (int)
         for card in online_data:
             # Removes non-paper game cards (i.e. Arena/MTGO exclusive cards)
             if 'paper' not in card['games']:
+                verbose_filter_stats['non_paper'] += 1
                 continue
             # Removes art cards
             if 'card_faces' in card and len(card['card_faces'])==2 and card['card_faces'][0]['oracle_text']=="" and card['card_faces'][1]['oracle_text']=="":
+                verbose_filter_stats['art'] += 1
                 continue
-            # Removes 'Teach by Example' special art card, which for whatever reason have an oracle text (and no image on Scryfall) 
-            if card['id'] == 'aaf8b02f-caa9-4e4f-9ade-d02a48555550':
+            # Removes tokens
+            if card['set_type'] == 'token':
+                verbose_filter_stats['token'] += 1
+                continue
+            # Removes oversized cards
+            if card['oversized'] == True:
+                verbose_filter_stats['oversized'] += 1
+                continue
+            # Removes missing images
+            if card['image_status'] == 'placeholder' or card['image_status'] == 'missing':
+                verbose_filter_stats['missing_img'] += 1
+                continue
+            # Removes The List cards (nearly identical to an already existing card)
+            if card['set'] == 'plst' or card['set'] == 'ulst':
+                verbose_filter_stats['the_list'] += 1
                 continue
             # HACK temp removes non-kaladesh non-doublemasters cards
             # if card['set'] != 'kld' and card['set'] != '2xm':
                 # continue
             # Adds card
             filtered_online_data.append (card)
+            
+        unique_name_cards = {}
+        for card in filtered_online_data:
+            if card['name'] in unique_name_cards:
+                unique_name_cards[card['name']].append (card)
+            else:
+                unique_name_cards[card['name']] = [card]
+                
+        kept_cards = []
+        for name in unique_name_cards:
+            same_name_cards = unique_name_cards[name]
+            ok_cards = []
+            for card in same_name_cards:
+                ok = True
+                for ok_card in ok_cards:
+                    if (ok_card['frame'] == card['frame'] and
+                        ok_card['full_art'] == card['full_art'] and
+                        ok_card['border_color'] == card['border_color'] and
+                        ok_card['textless'] == card['textless'] and
+                        (('watermark' not in ok_card and 'watermark' not in card) or ('watermark' in ok_card and 'watermark' in card and ok_card['watermark'] == card['watermark'])) and
+                        (('frame_effects' not in ok_card and 'frame_effects' not in card) or ('frame_effects' in ok_card and 'frame_effects' in card and ok_card['frame_effects'] == card['frame_effects'])) and
+                        ('illustration_id' in ok_card and 'illustration_id' in card and ok_card['illustration_id'] == card['illustration_id']) and
+                        card['set_type'] != 'promo' and
+                        card['variation'] != True
+                        ):
+                        verbose_filter_stats['identical'] += 1
+                        ok = False
+                        break
+                if (ok):
+                    ok_cards.append (card)
+                    kept_cards.append (card)
+                    
+                    
+            
         if (self.verbose):
-            print (f"\tKeeping {len(filtered_online_data)} cards.")
+            for stat in list (verbose_filter_stats):
+                print(f"\tRemoved {verbose_filter_stats[stat]} cards ({stat}).")
+            print (f"\tKeeping {len(kept_cards)} cards.")
             
         # Writes 'bulk infos' and 'data' JSONs to disk
         self.rw.write_bulk (online_bulk)
-        self.rw.write_data (filtered_online_data)
+        self.rw.write_data (kept_cards)
         
         print ("\tDone.")
         return

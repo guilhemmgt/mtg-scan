@@ -33,8 +33,8 @@ def parse_command_line ():
 def run_scan (args:argparse.ArgumentParser):
     # Reads image paths
     image_paths = glob.glob (args.input_path + "*.jpg")
-    images = [cv.imread(path) for path in image_paths]
-    print (args.input_path + "6.jpg")
+    images = [cv.imread (path) for path in image_paths]
+    
     # Scans obtained images
     s = Scanner (args.verbose)
     ids = [s.scan (image) for image in images]

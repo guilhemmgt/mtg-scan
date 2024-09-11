@@ -45,23 +45,27 @@ class ReaderWriter:
     def _try_read_online_json (self, uri, name):
         if (self.verbose):
             print (f"\tRetrieving online {name}...")
+            start_time = time.time ()
         time.sleep (0.1) # 100ms delay for good citizenship
         with urllib.request.urlopen (uri) as url:
             json_data = json.load (url)
         if (self.verbose):
+            exec_time = time.time () - start_time
             count = sum (1 for c in json_data)
-            print (f"\tRetrieved online {name} ({sys.getsizeof (json_data)} bytes, {count} items).")
+            print (f"\t\tRetrieved {count} items ({sys.getsizeof (json_data)} bytes) in {round (exec_time, 5)} s.")
         return json_data
     
     def _try_read_local_json (self, filename, name):
         if (self.verbose):
             print (f"\tRetrieving local {name}...")
+            start_time = time.time ()
         try:
             with open (filename, 'r', encoding='utf-8') as file:
                 json_data = json.load (file)
             if (self.verbose):
+                exec_time = time.time () - start_time
                 count = sum (1 for c in json_data)
-                print (f"\tRetrieved local {name} ({sys.getsizeof (json_data)} bytes, {count} items).")
+                print (f"\t\tRetrieved {count} items ({sys.getsizeof (json_data)} bytes) in {round (exec_time, 5)} s.")
         except FileNotFoundError:
             json_data = {}
             if (self.verbose):

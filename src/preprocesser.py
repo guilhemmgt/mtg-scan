@@ -12,7 +12,7 @@ class PreProcesser:
         self.verbose = verbose
 
 
-    def pre_process_image(self, image:TestImage, clahe, max_size:int=1000000000000000000):
+    def pre_process_image(self, image:TestImage, clahe, max_size:int=936):
         '''
         Pre process test and reference images for matching
         '''
@@ -46,4 +46,4 @@ class PreProcesser:
 
         if (self.verbose):
             exec_time = time.time() - start_time
-            print("\t\tDone in " + str(exec_time) + " s")
+            print(f"\t\tDone in {round (exec_time, 5)} s")

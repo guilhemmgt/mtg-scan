@@ -43,7 +43,13 @@ class Segmenter:
         M = cv.getRotationMatrix2D (card_rect[0], card_rect[2], 1)
         card_vertices = np.int32 (np.round (cv.transform (np.array ([cv.boxPoints (card_rect)]), M)[0]))
 
-        cv.drawContours(test_image.preprocessed_image, card_contour, -1, (0,255,0), 3)
+        # cv.drawContours(test_image.preprocessed_image, contours, 0, (0,255,0), 3)
+        # cv.drawContours(test_image.preprocessed_image, contours, 1, (255,0,0), 3)
+        # cv.drawContours(test_image.preprocessed_image, contours, 2, (0,0,255), 3)
+        # cv.drawContours(test_image.preprocessed_image, contours, 3, (255,255,255), 3)
+        # plt.imshow (test_image.preprocessed_image)
+        # plt.show(block=True)
+        
         card_image = cv.warpAffine (test_image.preprocessed_image, M, (test_image.preprocessed_image.shape[1], test_image.preprocessed_image.shape[0]))
         
         # Crops image
@@ -54,7 +60,7 @@ class Segmenter:
         
         if (self.verbose):
             exec_time = time.time() - start_time
-            print("\t\tDone in " + str(exec_time) + " s")
+            print(f"\t\tDone in {round (exec_time, 5)} s")
         
         return test_image
 
