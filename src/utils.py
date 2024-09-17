@@ -4,6 +4,14 @@ from shapely.geometry import LineString
 from shapely.geometry.polygon import Polygon
 import cv2
 
+def binary_array_to_dec (bin_array):
+    string = ''
+    for byte in bin_array:
+        for bit in byte:
+            string += str (int (bit))
+    dec = int (string, 2)
+    return dec
+
 def _order_polygon_points(x, y):
     """
     Orders polygon points into a counterclockwise order.

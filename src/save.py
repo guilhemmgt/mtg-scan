@@ -12,9 +12,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from collections import defaultdict
+import pynear
+import pickle
 
 from referenceimage import ReferenceImage
 from readerwriter import ReaderWriter
+from utils import binary_array_to_dec
 
 class Save:
     
@@ -24,6 +27,15 @@ class Save:
     def __init__ (self, verbose:bool):
         self.verbose = verbose
         self.rw = ReaderWriter (verbose)
+        
+    def update_tree (self, force_update_data:bool=False):
+        ref = self.rw.get_references ()
+        phashes = [r['phash'] for r in ref]
+        tree = pynear.VPTreeBinaryIndex ()
+        tree.set (phashes)
+        tree_data = pickle.dumps (tree)
+        self.rw.write_tree (tree_data)
+        
     
     def update_ref_phash (self, force_update_data:bool=False):
         '''
@@ -41,7 +53,7 @@ class Save:
         try:
             i = 0
             for card in local_data:
-                if i != 0 and i % 10 == 0:
+                if i % 5000 == 0:
                     print (f"\t{i} / {len (local_data)}")
                 i += 1
                 
@@ -62,8 +74,9 @@ class Save:
                 
                 # Computes each image's phash.
                 for image in card_images:
-                    phash = imagehash.phash (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=32)
-                    ref_images.append (ReferenceImage (id, str (phash)).toJSON ())
+                    phash = imagehash.phash (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=4)
+                    dec_phash = binary_array_to_dec (phash.hash)
+                    ref_images.append (ReferenceImage (id, str (dec_phash)).toJSON ())
         except:
             traceback.print_exc()
                 
@@ -81,6 +94,7 @@ class Save:
         Updates cards data from Scryfall.
         '''
         print ("Updating cards...")
+        start_time = time.time ()
         
         # Retrieves local and online bulk data item for every unique card in English
         # These do NOT contains the actual cards
@@ -172,5 +186,7 @@ class Save:
         self.rw.write_bulk (online_bulk)
         self.rw.write_data (kept_cards)
         
-        print ("\tDone.")
+        exec_time = time.time () - start_time
+        print(f"\t\tDone in {round (exec_time, 5)} s")
+        
         return
