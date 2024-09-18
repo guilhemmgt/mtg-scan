@@ -5,7 +5,7 @@ import cv2
 
 from testimage import TestImage
 
-class PreProcesser:
+class PreProcessor:
     verbose : bool
     
     def __init__(self, verbose:bool=False):

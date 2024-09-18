@@ -10,7 +10,7 @@ import vptree
 
 from testimage import TestImage
 from referenceimage import ReferenceImage
-from preprocesser import PreProcesser
+from preprocessor import PreProcessor
 from readerwriter import ReaderWriter
 from segmenter import Segmenter, Thresholding
 from utils import _convex_hull_polygon, _get_bounding_quad, four_point_transform, binary_array_to_dec
@@ -33,7 +33,7 @@ class Scanner:
         test_image = TestImage (image)
         
         # Pre-process raw image
-        p = PreProcesser (self.verbose)
+        p = PreProcessor (self.verbose)
         clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)) # CLAHE
         p.pre_process_image (test_image, clahe)
         
