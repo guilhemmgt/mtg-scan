@@ -4,7 +4,6 @@ import glob
 import cv2 as cv
 
 from scanner import Scanner
-
 from save import Save
 
 

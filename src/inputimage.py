@@ -1,6 +1,6 @@
 import numpy as np
 
-class TestImage:
+class InputImage:
 
     raw_image:np.ndarray
     """ Original input image """
