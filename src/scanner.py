@@ -6,7 +6,7 @@ from PIL import Image as PILImage
 import json
 import time
 import statistics
-import pynear
+import vptree
 
 from testimage import TestImage
 from referenceimage import ReferenceImage
@@ -57,58 +57,53 @@ class Scanner:
         if (self.verbose):
             start_time = time.time()
             print("\tComputing phash...")
-            
-        binary_phash = imagehash.phash (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=32).hash
+        phash = imagehash.phash (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=32)
+        binary_phash = phash.hash
         dec_phash = binary_array_to_dec (binary_phash)
-        
         if (self.verbose):
             exec_time = time.time() - start_time
             print(f"\t\tDone in {round (exec_time, 5)} s")
-            
-        return dec_phash
+        return binary_phash.flatten ()
         
     def compare_phash (self, phash):
         ref_images = self.rw.get_references ()
         ref_images_objects = []
         
+        # Converts json to ReferenceImages
         if (self.verbose):
             print ("\tConverting json to objects...")
             start_time = time.time ()
         for r in ref_images:
-            ref_images_objects.append (ReferenceImage (r['id'], imagehash.hex_to_hash (r['phash'])))
+            ref_images_objects.append (ReferenceImage (r['id'], imagehash.hex_to_hash(r['phash']).hash.flatten ()))
         ref_images = ref_images_objects
         if (self.verbose):
             exec_time = time.time () - start_time
             print(f"\t\tDone in {round (exec_time, 5)} s")
         
+        # Builds vp tree
         if (self.verbose):
             print ("\tBuilding vp tree...")
             start_time = time.time ()
-        tree = pynear.VPTreeBinaryIndex ()
-        tree.set (ref_images)
+        def hamming (a, b):
+            return np.count_nonzero(a.phash != b.phash)
+        tree = vptree.VPTree (ref_images, hamming)
         if (self.verbose):
             exec_time = time.time () - start_time
             print(f"\t\tDone in {round (exec_time, 5)} s")
-            
-            
-            
-            
+
+        # Comparing hashes
         if (self.verbose):
             print ("\tComparing phashes...")
             start_time = time.time ()
-        self.iii = 0
-        diff = []
-        for ref_image in ref_images:
-            diff.append (phash - ref_image.phash)
-            
-        min_i = int (np.argmin (diff))
-        min_diff = diff[min_i]
-        min_id = ref_images[min_i].id
+
+        match = tree.get_nearest_neighbor (ReferenceImage ('', phash))
+
+        # min_i = int (np.argmin (diff))
+        # min_diff = diff[min_i]
+        # min_id = ref_images[min_i].id
         
         # query = ReferenceImage ('', phash)
         # res = tree.knn (query, 1)
-        
-        print (self.iii)
         if (self.verbose):
             exec_time = time.time () - start_time
             print(f"\t\tDone in {round (exec_time, 5)} s")
@@ -117,6 +112,7 @@ class Scanner:
         # print (f"mean:{statistics.mean(diff)}, med:{statistics.median(diff)}, std:{statistics.stdev(diff)}")
         
         print("")
+        print (f"{match[0]} , {match[1].id}")
         # print (exec_time / len(diff))
         # print (min_diff)
         # print (min_id)
@@ -125,9 +121,10 @@ class Scanner:
         # for i, d in enumerate (diff):
         #     if d < mea - 4*std:
         #         print (f"{ref_images[i]['id']} with diff={d}")
-        for r in res:
-            print (r[1])
-            print (r[0].id)
+        # for r in res:
+        #     print (r[1])
+        #     print (r[0].id)
         
-        return res[0][0].id
+        
+        return match[1].id
         

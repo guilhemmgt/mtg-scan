@@ -12,8 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from collections import defaultdict
-import pynear
 import pickle
+import vptree
 
 from referenceimage import ReferenceImage
 from readerwriter import ReaderWriter
