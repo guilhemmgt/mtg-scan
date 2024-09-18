@@ -27,14 +27,6 @@ class Save:
         self.verbose = verbose
         self.rw = ReaderWriter (verbose)
         
-    def update_tree (self, force_update_data:bool=False):
-        ref = self.rw.get_references ()
-        phashes = [r['phash'] for r in ref]
-        tree = pynear.VPTreeBinaryIndex ()
-        tree.set (phashes)
-        tree_data = pickle.dumps (tree)
-        self.rw.write_tree (tree_data)
-        
     
     def update_ref_phash (self, force_update_data:bool=False):
         print ("Updating phashes...")
@@ -81,8 +73,6 @@ class Save:
             print (f"\tComputed {sum (1 for c in local_data)} cards phashes.")
             
         self.rw.write_references (ref_images)
-            
-        return
                     
                
     def update_cards (self, force:bool=False):

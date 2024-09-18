@@ -64,7 +64,7 @@ class Scanner:
         if (self.verbose):
             start_time = time.time()
             print("\tComputing phash...")
-        phash = imagehash.phash (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=32)
+        phash = imagehash.phash_simple (PILImage.fromarray (np.uint8 (255 * cv.cvtColor (image, cv.COLOR_BGR2RGB))), hash_size=32)
         binary_phash = phash.hash
         if (self.verbose):
             exec_time = time.time() - start_time

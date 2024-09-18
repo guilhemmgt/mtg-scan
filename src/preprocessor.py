@@ -3,7 +3,7 @@ import numpy
 
 import cv2
 
-from testimage import TestImage
+from inputimage import InputImage
 
 class PreProcessor:
     verbose : bool
@@ -12,7 +12,7 @@ class PreProcessor:
         self.verbose = verbose
 
 
-    def pre_process_image(self, image:TestImage, clahe, max_size:int=936):
+    def pre_process_image(self, image:InputImage, clahe, max_size:int=936):
         '''
         Pre process test and reference images for matching
         '''
@@ -21,7 +21,7 @@ class PreProcessor:
 
         start_time = time.time() # Performance stats
 
-        if (type(image) == TestImage):
+        if (type(image) == InputImage):
             preprocessed_image = image.raw_image # Result image
         else:
             preprocessed_image = image
@@ -41,7 +41,7 @@ class PreProcessor:
         lab[...,0] = clahe.apply(lab[...,0])                         # Apply CLAHE to lightness plane
         preprocessed_image = cv2.cvtColor(lab, cv2.COLOR_LAB2BGR)    # Conversion back to BGR color space used by cv2 (blue, green, red)
 
-        if (type(image) == TestImage):
+        if (type(image) == InputImage):
             image.preprocessed_image = preprocessed_image
 
         if (self.verbose):

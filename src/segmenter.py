@@ -5,7 +5,7 @@ from shapely.affinity import scale
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-from testimage import TestImage
+from inputimage import InputImage
 from cardcandidate import CardCandidate
 
 class Thresholding:
@@ -24,7 +24,7 @@ class Segmenter:
         self.threshold = threshold
 
 
-    def segment (self, test_image:TestImage) -> TestImage:
+    def segment (self, test_image:InputImage) -> InputImage:
         if (self.verbose):
             print("\tSegmenting...")
             
@@ -65,7 +65,7 @@ class Segmenter:
         return test_image
 
 
-    def _contour_image (self, test_image:TestImage) -> tuple[np.ndarray]:
+    def _contour_image (self, test_image:InputImage) -> tuple[np.ndarray]:
         """ 
         Wrapper for contouring methods
         """
@@ -80,7 +80,7 @@ class Segmenter:
                 raise ValueError ("Unknown threshold method", self.threshold)
                 
 
-    def _contour_image_simple(self, test_image:TestImage) -> tuple[np.ndarray]:
+    def _contour_image_simple(self, test_image:InputImage) -> tuple[np.ndarray]:
         """
         Contours given image with simple thresholding
         """
@@ -96,7 +96,7 @@ class Segmenter:
         return contours
 
 
-    def _contour_image_adaptative(self, test_image:TestImage) -> tuple[np.ndarray]:
+    def _contour_image_adaptative(self, test_image:InputImage) -> tuple[np.ndarray]:
         """
         Contours given image with adaptative thresholding
         """
@@ -113,7 +113,7 @@ class Segmenter:
         return contours
 
 
-    def _contour_image_rgb(self, test_image:TestImage) -> tuple[np.ndarray]:
+    def _contour_image_rgb(self, test_image:InputImage) -> tuple[np.ndarray]:
         """
         Contours given image with simple RGB thresholding
         """
