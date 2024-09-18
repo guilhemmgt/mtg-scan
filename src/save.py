@@ -127,10 +127,6 @@ class Save:
             if card['image_status'] == 'placeholder' or card['image_status'] == 'missing':
                 verbose_filter_stats['missing_img'] += 1
                 continue
-            # Removes The List cards (nearly identical to an already existing card)
-            if card['set'] == 'plst' or card['set'] == 'ulst':
-                verbose_filter_stats['the_list'] += 1
-                continue
             # Adds card
             filtered_online_data.append (card)
             
@@ -150,16 +146,17 @@ class Save:
             for card in same_name_cards:
                 ok = True
                 for ok_card in ok_cards:
-                    # A card is not kept if it meets all of the following criterias :
-                    if (ok_card['frame'] == card['frame'] and # Same frame
-                        ok_card['full_art'] == card['full_art'] and # Both (not) full art
-                        ok_card['border_color'] == card['border_color'] and # Same bord color (white, back, ...)
-                        ok_card['textless'] == card['textless'] and # Both (not) textless
-                        (('watermark' not in ok_card and 'watermark' not in card) or ('watermark' in ok_card and 'watermark' in card and ok_card['watermark'] == card['watermark'])) and # Same watermarks
-                        (('frame_effects' not in ok_card and 'frame_effects' not in card) or ('frame_effects' in ok_card and 'frame_effects' in card and ok_card['frame_effects'] == card['frame_effects'])) and # Same frame effects
-                        ('illustration_id' in ok_card and 'illustration_id' in card and ok_card['illustration_id'] == card['illustration_id']) and # Same illustration
-                        card['set_type'] != 'promo' and # Not a promo card
-                        card['variation'] != True # Not a variation of an other card
+                    # A card is discarded if it meets all of the following criterias (or if it is from The List):
+                    if ((ok_card['frame'] == card['frame'] and # Same frame
+                         ok_card['full_art'] == card['full_art'] and # Both (not) full art
+                         ok_card['border_color'] == card['border_color'] and # Same bord color (white, back, ...)
+                         ok_card['textless'] == card['textless'] and # Both (not) textless
+                         (('watermark' not in ok_card and 'watermark' not in card) or ('watermark' in ok_card and 'watermark' in card and ok_card['watermark'] == card['watermark'])) and # Same watermarks
+                         (('frame_effects' not in ok_card and 'frame_effects' not in card) or ('frame_effects' in ok_card and 'frame_effects' in card and ok_card['frame_effects'] == card['frame_effects'])) and # Same frame effects
+                         ('illustration_id' in ok_card and 'illustration_id' in card and ok_card['illustration_id'] == card['illustration_id']) and # Same illustration
+                         card['set_type'] != 'promo' and # Not a promo card
+                         card['variation'] != True) # Not a variation of an other card
+                        or (card['set'] == 'plst' or card['set'] == 'ulst')
                         ):
                         verbose_filter_stats['identical'] += 1
                         ok = False
