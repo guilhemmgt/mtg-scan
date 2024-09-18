@@ -97,25 +97,30 @@ class Save:
         filtered_online_data = []
         verbose_filter_stats = defaultdict (int)
         for card in online_data:
+            # Only keeps english and french cards
+            if card['lang'] != 'en' and card['lang'] != 'fr':
+                continue
+            lang = card['lang']
+            
             # Removes non-paper game cards (i.e. Arena/MTGO exclusive cards)
             if 'paper' not in card['games']:
-                verbose_filter_stats['non_paper'] += 1
+                verbose_filter_stats[f'non_paper[{lang}]'] += 1
                 continue
             # Removes art cards
             if 'card_faces' in card and len(card['card_faces'])==2 and card['card_faces'][0]['oracle_text']=="" and card['card_faces'][1]['oracle_text']=="":
-                verbose_filter_stats['art'] += 1
+                verbose_filter_stats[f'art[{lang}]'] += 1
                 continue
             # Removes tokens
             if card['set_type'] == 'token':
-                verbose_filter_stats['token'] += 1
+                verbose_filter_stats[f'token[{lang}]'] += 1
                 continue
             # Removes oversized cards
             if card['oversized'] == True:
-                verbose_filter_stats['oversized'] += 1
+                verbose_filter_stats[f'oversized[{lang}]'] += 1
                 continue
             # Removes missing images
             if card['image_status'] == 'placeholder' or card['image_status'] == 'missing':
-                verbose_filter_stats['missing_img'] += 1
+                verbose_filter_stats[f'missing_img[{lang}]'] += 1
                 continue
             # Adds card
             filtered_online_data.append (card)
@@ -148,7 +153,7 @@ class Save:
                          card['variation'] != True) # Not a variation of an other card
                         or (card['set'] == 'plst' or card['set'] == 'ulst')
                         ):
-                        verbose_filter_stats['identical'] += 1
+                        verbose_filter_stats[f'identical[{lang}]'] += 1
                         ok = False
                         break
                 if (ok):
