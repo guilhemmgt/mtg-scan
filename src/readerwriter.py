@@ -23,7 +23,8 @@ class ReaderWriter:
     def get_online_bulk (self):
         all_bulks = self._try_read_online_json (self.scryfall_bulks_url, "bulk")
         if 'data' in all_bulks:
-            return all_bulks['data'][2]
+            # return all_bulks['data'][2]
+            return all_bulks['data'][3]
         else:
             return {}
     def get_online_data (self, bulk):

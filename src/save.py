@@ -48,16 +48,35 @@ class Save:
                 
                 id = card['id'] # Scryfall id
 
-                # Retrieves the card's image. There can be multiple images if the card is multifaced.
-                card_images = []
+                # Retrieves the card image(s) URL(s). There can be multiple images if the card is multifaced.
                 if 'image_uris' in card:
-                    card_images.append (plt.imread (urllib.request.urlopen (card['image_uris']['large']), format='jpg'))
+                    img_urls = card['image_uris']['normal']
                 elif 'card_faces' in card:
+                    img_urls = []
                     for face in card['card_faces']:
-                        card_images.append ( plt.imread (urllib.request.urlopen (face['image_uris']['large']), format='jpg') )
+                        img_urls.append (face['image_uris']['normal'])
                 else:
                     print (card)
                     raise Exception
+                
+                # Retrieves the card image(s).
+                card_images = []
+                for url in img_urls:
+                    req = urllib.request.Request(url)
+                    # Connection can be reset or timeout unexpectedly and for unknown reasons. To counter this, each download has 10 tries.
+                    for j in range (0, 10): 
+                        try:
+                            response = urllib.request.urlopen (req, timeout=5)
+                            im = plt.imread (response, format='jpg')
+                            break
+                        except:
+                            response = None
+                            im = None
+                            pass
+                    if (im != None):
+                        card_images.append (im)
+                    else:
+                        print (f"\t\tFailed to retrieve image at url {url} !")
                 
                 # TODO: add clahe to card_images ?
                 
